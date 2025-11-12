@@ -1,0 +1,41 @@
+@startuml
+!theme plain
+
+title Online Learning Platform - ER Diagram
+
+entity "Student" as Student {
+    *id : Long <<PK>>
+    --
+    name : String
+    email : String
+}
+
+entity "Course" as Course {
+    *id : Long <<PK>>
+    --
+    name : String
+    description : String
+    instructor_id : Long <<FK>>
+}
+
+entity "Instructor" as Instructor {
+    *id : Long <<PK>>
+    --
+    name : String
+    department : String
+}
+
+entity "Enrollment" as Enrollment {
+    *id : Long <<PK>>
+    --
+    student_id : Long <<FK>>
+    course_id : Long <<FK>>
+    grade : Double
+}
+
+' ---------------- Relationships ----------------
+Instructor ||--o{ Course : "teaches"
+Course ||--o{ Enrollment : "has"
+Student ||--o{ Enrollment : "enrolled in"
+
+@enduml
