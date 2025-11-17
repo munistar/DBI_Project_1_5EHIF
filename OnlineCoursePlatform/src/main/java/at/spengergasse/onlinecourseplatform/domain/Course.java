@@ -14,7 +14,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Course {
+public class    Course {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
