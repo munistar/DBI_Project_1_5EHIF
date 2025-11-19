@@ -1,0 +1,37 @@
+<div class="container" style="max-width: 800px;">
+    <div class="mb-4">
+        <a routerLink="/courses" class="btn btn-secondary text-sm">← Back to Courses</a>
+    </div>
+
+    <div *ngIf="loading" class="spinner"></div>
+
+    <div *ngIf="!loading && course" class="card">
+        <div class="flex justify-between items-start mb-6">
+            <h1 *ngIf="!isEditing">{{ course.name }}</h1>
+            <div *ngIf="isEditing" class="w-full mr-4">
+                <input type="text" [(ngModel)]="course.name" class="text-2xl font-bold mb-2">
+            </div>
+
+            <div class="flex gap-2">
+                <button *ngIf="!isEditing" (click)="toggleEdit()" class="btn btn-primary">Edit</button>
+                <button *ngIf="isEditing" (click)="save()" class="btn btn-success">Save</button>
+                <button *ngIf="isEditing" (click)="toggleEdit()" class="btn btn-secondary">Cancel</button>
+                <button (click)="delete()" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+
+        <div *ngIf="!isEditing">
+            <p class="text-lg">{{ course.description }}</p>
+            <div class="mt-8 pt-4 border-t border-gray-700">
+                <p class="text-sm text-muted">Course ID: {{ course.id }}</p>
+            </div>
+        </div>
+
+        <div *ngIf="isEditing">
+            <div class="form-group">
+                <label>Description</label>
+                <textarea [(ngModel)]="course.description" rows="6"></textarea>
+            </div>
+        </div>
+    </div>
+</div>

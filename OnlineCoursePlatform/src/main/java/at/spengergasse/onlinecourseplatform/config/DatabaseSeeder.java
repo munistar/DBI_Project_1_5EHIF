@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -30,25 +31,51 @@ public class DatabaseSeeder {
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
 
+    @Value("${seed.enabled:true}")
+    private boolean seedEnabled;
+
+    @Value("${seed.students.count:100}")
+    private int studentCount;
+
+    @Value("${seed.instructors.count:10}")
+    private int instructorCount;
+
+    @Value("${seed.courses.count:20}")
+    private int courseCount;
+
+    @Value("${seed.enrollments.count:200}")
+    private int enrollmentCount;
+
     private final Random random = new Random();
 
     @Bean
     public CommandLineRunner loadData() {
         return args -> {
+            // Check if seeding is enabled
+            if (!seedEnabled) {
+                log.info("Seed data generation is disabled. Set seed.enabled=true to enable.");
+                return;
+            }
+
             // Check if data already exists
             if (studentRepository.count() > 0) {
                 log.info("Database already contains data. Skipping seeding.");
                 return;
             }
 
-            log.info("Starting database seeding...");
+            // Validate counts
+            validateCounts();
+
+            log.info("Starting database seeding with configuration:");
+            log.info("  Students: {}, Instructors: {}, Courses: {}, Enrollments: {}",
+                    studentCount, instructorCount, courseCount, enrollmentCount);
             long startTime = System.currentTimeMillis();
 
-            // Generate data
-            List<Student> students = generateStudents(50000);
-            List<Instructor> instructors = generateInstructors(500);
-            List<Course> courses = generateCourses(1000, instructors);
-            List<Enrollment> enrollments = generateEnrollments(98500, students, courses);
+            // Generate data with configured counts
+            List<Student> students = generateStudents(studentCount);
+            List<Instructor> instructors = generateInstructors(instructorCount);
+            List<Course> courses = generateCourses(courseCount, instructors);
+            List<Enrollment> enrollments = generateEnrollments(enrollmentCount, students, courses);
 
             log.info("Data generation completed in {} ms", System.currentTimeMillis() - startTime);
             log.info("Total records: {} (Students: {}, Instructors: {}, Courses: {}, Enrollments: {})",
@@ -63,11 +90,11 @@ public class DatabaseSeeder {
         List<Student> students = new ArrayList<>();
         int batchSize = 1000;
 
-        String[] firstNames = {"Emma", "Liam", "Olivia", "Noah", "Ava", "Ethan", "Sophia", "Mason",
-                "Isabella", "William", "Mia", "James", "Charlotte", "Benjamin", "Amelia"};
-        String[] lastNames = {"Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller",
-                "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson"};
-        String[] cities = {"Vienna", "Salzburg", "Graz", "Innsbruck", "Linz", "Klagenfurt", "Villach", "Wels"};
+        String[] firstNames = { "Emma", "Liam", "Olivia", "Noah", "Ava", "Ethan", "Sophia", "Mason",
+                "Isabella", "William", "Mia", "James", "Charlotte", "Benjamin", "Amelia" };
+        String[] lastNames = { "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller",
+                "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson" };
+        String[] cities = { "Vienna", "Salzburg", "Graz", "Innsbruck", "Linz", "Klagenfurt", "Villach", "Wels" };
 
         for (int i = 0; i < count; i++) {
             Student student = Student.builder()
@@ -103,13 +130,13 @@ public class DatabaseSeeder {
     protected List<Instructor> generateInstructors(int count) {
         log.info("Generating {} instructors...", count);
         List<Instructor> instructors = new ArrayList<>();
-        String[] departments = {"Computer Science", "Mathematics", "Physics", "Chemistry",
-                "Biology", "Engineering", "Business", "Arts", "History", "Literature"};
-        String[] firstNames = {"John", "Sarah", "Michael", "Emily", "David", "Jessica", "Robert",
-                "Lisa", "Daniel", "Jennifer", "Thomas", "Maria", "Christopher", "Anna"};
-        String[] lastNames = {"Anderson", "Taylor", "Thomas", "Moore", "Jackson", "Martin", "Lee",
-                "Perez", "Thompson", "White", "Harris", "Clark", "Lewis", "Walker"};
-        String[] buildings = {"Building A", "Building B", "Building C", "Main Campus", "North Wing", "South Wing"};
+        String[] departments = { "Computer Science", "Mathematics", "Physics", "Chemistry",
+                "Biology", "Engineering", "Business", "Arts", "History", "Literature" };
+        String[] firstNames = { "John", "Sarah", "Michael", "Emily", "David", "Jessica", "Robert",
+                "Lisa", "Daniel", "Jennifer", "Thomas", "Maria", "Christopher", "Anna" };
+        String[] lastNames = { "Anderson", "Taylor", "Thomas", "Moore", "Jackson", "Martin", "Lee",
+                "Perez", "Thompson", "White", "Harris", "Clark", "Lewis", "Walker" };
+        String[] buildings = { "Building A", "Building B", "Building C", "Main Campus", "North Wing", "South Wing" };
 
         for (int i = 0; i < count; i++) {
             Instructor instructor = Instructor.builder()
@@ -136,11 +163,11 @@ public class DatabaseSeeder {
     protected List<Course> generateCourses(int count, List<Instructor> instructors) {
         log.info("Generating {} courses...", count);
         List<Course> courses = new ArrayList<>();
-        String[] subjects = {"Introduction to", "Advanced", "Fundamentals of", "Applied",
-                "Theoretical", "Practical", "Modern", "Classical"};
-        String[] topics = {"Programming", "Algorithms", "Data Structures", "Web Development",
+        String[] subjects = { "Introduction to", "Advanced", "Fundamentals of", "Applied",
+                "Theoretical", "Practical", "Modern", "Classical" };
+        String[] topics = { "Programming", "Algorithms", "Data Structures", "Web Development",
                 "Machine Learning", "Database Systems", "Networks", "Security",
-                "Software Engineering", "AI", "Cloud Computing", "Mobile Development"};
+                "Software Engineering", "AI", "Cloud Computing", "Mobile Development" };
 
         for (int i = 0; i < count; i++) {
             Course course = new Course();
@@ -152,7 +179,7 @@ public class DatabaseSeeder {
 
             // Assign random instructor
             Instructor instructor = instructors.get(random.nextInt(instructors.size()));
-            course.setInstructorId(instructor.getId());
+            course.setInstructor(instructor);
             course.setVersion(0L);
 
             courses.add(course);
@@ -176,8 +203,8 @@ public class DatabaseSeeder {
             Student student = students.get(random.nextInt(students.size()));
             Course course = courses.get(random.nextInt(courses.size()));
 
-            enrollment.setStudentId(student.getId());
-            enrollment.setCourseId(course.getId());
+            enrollment.setStudent(student);
+            enrollment.setCourse(course);
 
             // Random grade between 1.0 and 5.0 (or null for in-progress courses)
             if (random.nextBoolean()) {
@@ -202,5 +229,22 @@ public class DatabaseSeeder {
 
         log.info("Completed generating {} enrollments", count);
         return new ArrayList<>(enrollmentRepository.findAll());
+    }
+
+    /**
+     * Validates that seed counts are within acceptable range (10 - 100,000)
+     */
+    private void validateCounts() {
+        validateCount("students", studentCount);
+        validateCount("instructors", instructorCount);
+        validateCount("courses", courseCount);
+        validateCount("enrollments", enrollmentCount);
+    }
+
+    private void validateCount(String entity, int count) {
+        if (count < 10 || count > 100000) {
+            throw new IllegalArgumentException(
+                    String.format("Seed count for %s must be between 10 and 100,000. Got: %d", entity, count));
+        }
     }
 }

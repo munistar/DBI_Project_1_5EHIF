@@ -1,0 +1,36 @@
+<div class="container" style="max-width: 600px;">
+    <div class="flex justify-between items-center mb-8">
+        <h1>Register Student</h1>
+        <a routerLink="/students" class="btn btn-secondary">Cancel</a>
+    </div>
+
+    <div class="card">
+        <form (ngSubmit)="onSubmit()">
+            <div class="grid grid-cols-1 grid-cols-2 gap-4">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" [(ngModel)]="student.firstName" name="firstName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" [(ngModel)]="student.lastName" name="lastName" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" [(ngModel)]="student.email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="dateOfBirth">Date of Birth</label>
+                <input type="date" id="dateOfBirth" [(ngModel)]="student.dateOfBirth" name="dateOfBirth" required>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="btn btn-primary">Register Student</button>
+            </div>
+        </form>
+    </div>
+</div>

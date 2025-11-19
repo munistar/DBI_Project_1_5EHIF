@@ -1,0 +1,43 @@
+<div class="flex justify-between items-center mb-8">
+    <div>
+        <h1>Students</h1>
+        <p>Manage registered students</p>
+    </div>
+    <a routerLink="/students/create" class="btn btn-primary">
+        + New Student
+    </a>
+</div>
+
+<div *ngIf="loading" class="spinner"></div>
+
+<div *ngIf="!loading && students.length === 0" class="text-center text-muted">
+    <p>No students found.</p>
+</div>
+
+<div *ngIf="!loading && students.length > 0" class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Date of Birth</th>
+                <th>Registration Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let student of students">
+                <td>{{ student.firstName }} {{ student.lastName }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.dateOfBirth }}</td>
+                <td>{{ student.registrationDate }}</td>
+                <td>
+                    <button (click)="deleteStudent(student.id!)" class="btn btn-danger text-sm"
+                        style="padding: 0.25rem 0.5rem;">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

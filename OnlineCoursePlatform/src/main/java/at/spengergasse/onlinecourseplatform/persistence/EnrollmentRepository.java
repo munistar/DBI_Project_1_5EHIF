@@ -15,22 +15,22 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     /**
      * Find all enrollments for a specific student
      */
-    List<Enrollment> findByStudentId(Long studentId);
+    List<Enrollment> findByStudent_Id(Long studentId);
 
     /**
      * Find all enrollments for a specific course
      */
-    List<Enrollment> findByCourseId(Long courseId);
+    List<Enrollment> findByCourse_Id(Long courseId);
 
     /**
      * Find a specific enrollment by student and course
      */
-    Optional<Enrollment> findByStudentIdAndCourseId(Long studentId, Long courseId);
+    Optional<Enrollment> findByStudent_IdAndCourse_Id(Long studentId, Long courseId);
 
     /**
      * Check if an enrollment exists for a student in a course
      */
-    boolean existsByStudentIdAndCourseId(Long studentId, Long courseId);
+    boolean existsByStudent_IdAndCourse_Id(Long studentId, Long courseId);
 
     /**
      * Find all enrollments with grades above a certain threshold
@@ -60,42 +60,42 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     /**
      * Count enrollments for a specific student
      */
-    long countByStudentId(Long studentId);
+    long countByStudent_Id(Long studentId);
 
     /**
      * Count enrollments for a specific course
      */
-    long countByCourseId(Long courseId);
+    long countByCourse_Id(Long courseId);
 
     /**
      * Calculate average grade for a student
      */
-    @Query("SELECT AVG(e.grade) FROM Enrollment e WHERE e.studentId = :studentId AND e.grade IS NOT NULL")
+    @Query("SELECT AVG(e.grade) FROM Enrollment e WHERE e.student.id = :studentId AND e.grade IS NOT NULL")
     Double calculateAverageGradeByStudentId(@Param("studentId") Long studentId);
 
     /**
      * Calculate average grade for a course
      */
-    @Query("SELECT AVG(e.grade) FROM Enrollment e WHERE e.courseId = :courseId AND e.grade IS NOT NULL")
+    @Query("SELECT AVG(e.grade) FROM Enrollment e WHERE e.course.id = :courseId AND e.grade IS NOT NULL")
     Double calculateAverageGradeByCourseId(@Param("courseId") Long courseId);
 
     /**
      * Find all enrollments for a student with grades
      */
-    List<Enrollment> findByStudentIdAndGradeIsNotNull(Long studentId);
+    List<Enrollment> findByStudent_IdAndGradeIsNotNull(Long studentId);
 
     /**
      * Find all enrollments for a course with grades
      */
-    List<Enrollment> findByCourseIdAndGradeIsNotNull(Long courseId);
+    List<Enrollment> findByCourse_IdAndGradeIsNotNull(Long courseId);
 
     /**
      * Delete all enrollments for a specific student
      */
-    void deleteByStudentId(Long studentId);
+    void deleteByStudent_Id(Long studentId);
 
     /**
      * Delete all enrollments for a specific course
      */
-    void deleteByCourseId(Long courseId);
+    void deleteByCourse_Id(Long courseId);
 }

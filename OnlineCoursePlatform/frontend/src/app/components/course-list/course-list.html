@@ -1,0 +1,33 @@
+<div class="flex justify-between items-center mb-8">
+    <div>
+        <h1>Courses</h1>
+        <p>Manage your educational content</p>
+    </div>
+    <a routerLink="/courses/create" class="btn btn-primary">
+        + New Course
+    </a>
+</div>
+
+<div *ngIf="loading" class="spinner"></div>
+
+<div *ngIf="!loading && courses.length === 0" class="text-center text-muted">
+    <p>No courses found. Create your first one!</p>
+</div>
+
+<div class="grid grid-cols-1 grid-cols-2 grid-cols-3">
+    <div *ngFor="let course of courses" class="card flex flex-col justify-between">
+        <div>
+            <h3>{{ course.name }}</h3>
+            <p class="text-sm mb-4">{{ course.description }}</p>
+        </div>
+
+        <div class="flex justify-between items-center mt-4">
+            <a [routerLink]="['/courses', course.id]" class="btn btn-secondary text-sm">
+                View Details
+            </a>
+            <button (click)="deleteCourse(course.id!)" class="btn btn-danger text-sm">
+                Delete
+            </button>
+        </div>
+    </div>
+</div>

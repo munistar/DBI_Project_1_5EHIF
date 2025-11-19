@@ -14,7 +14,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class    Course {
+public class Course {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,18 +30,19 @@ public class    Course {
     @Column(nullable = false, length = 2000)
     private String description;
 
-    // Note: instructor_id foreign key will be added once Instructor entity is ready
-    // Temporary field to store instructor reference
-    @Column(name = "instructor_id")
-    private Long instructorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "instructor_id", foreignKey = @ForeignKey(name = "fk_course_instructor"))
+    private Instructor instructor;
 
     @Version
     private Long version;
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Course course)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Course course))
+            return false;
         return Objects.equals(id, course.id);
     }
 
@@ -56,7 +57,7 @@ public class    Course {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", instructorId=" + instructorId +
+                ", instructorId=" + (instructor != null ? instructor.getId() : null) +
                 ", version=" + version +
                 '}';
     }

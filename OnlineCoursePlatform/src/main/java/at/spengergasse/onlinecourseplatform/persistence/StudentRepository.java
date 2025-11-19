@@ -12,10 +12,14 @@ import java.util.Optional;
 
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
+    Optional<Student> findByEmail(String email);
 
     List<Student> findByFirstNameContainingIgnoreCase(String firstName);
+
     List<Student> findByLastNameContainingIgnoreCase(String lastName);
+
     Optional<Student> findByEmailIgnoreCase(String email);
+
     boolean existsByEmailIgnoreCase(String email);
 
     List<Student> findByRegistrationDateBetween(LocalDate from, LocalDate to);

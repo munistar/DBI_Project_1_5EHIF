@@ -1,0 +1,56 @@
+<div class="container">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1>Performance Tests</h1>
+            <p>Compare Relational vs MongoDB performance</p>
+        </div>
+        <button (click)="runTests()" [disabled]="loading" class="btn btn-primary">
+            <span *ngIf="!loading">Run All Tests</span>
+            <span *ngIf="loading">Running Tests...</span>
+        </button>
+    </div>
+
+    <div *ngIf="error" class="card mb-8" style="border-color: var(--danger);">
+        <p style="color: var(--danger); margin: 0;">{{ error }}</p>
+    </div>
+
+    <div *ngIf="loading" class="text-center my-12">
+        <div class="spinner"></div>
+        <p class="mt-4">Running performance tests... This may take a few seconds.</p>
+    </div>
+
+    <div *ngIf="!loading && results.length > 0">
+        <div *ngFor="let group of groupedResults" class="card mb-8">
+            <h2 class="mb-4">{{ group[0] }} Operations</h2>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Database</th>
+                            <th>Records</th>
+                            <th>Duration (ms)</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let result of group[1]">
+                            <td [class.text-primary]="result.database === 'MongoDB'">
+                                <strong>{{ result.database }}</strong>
+                            </td>
+                            <td>{{ result.recordCount }}</td>
+                            <td>
+                                <span class="font-bold">{{ result.durationMs }} ms</span>
+                            </td>
+                            <td>{{ result.details }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="!loading && results.length === 0 && !error" class="text-center text-muted my-12">
+        <p>Click "Run All Tests" to start the performance comparison.</p>
+    </div>
+</div>
