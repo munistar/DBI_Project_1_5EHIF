@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.time.LocalDate;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
@@ -26,7 +28,9 @@ public class StudentRepositoryTest {
         Student student =  new Student();
         student.setFirstName("FirstName");
         student.setLastName("LastName");
-        student.setEmail("Email");
+        student.setEmail("Email@gmail.com");
+        student.setDateOfBirth(LocalDate.of(1980, 1, 1));
+        studentRepository.save(student);
         Student savedStudent = studentRepository.save(student);
 
         assertThat(savedStudent.getId()).isNotNull();
