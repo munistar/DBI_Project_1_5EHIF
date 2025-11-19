@@ -27,7 +27,7 @@ public class InstructorRepositoryTest {
         Instructor instructor =  new Instructor();
         instructor.setFirstName("FirstName");
         instructor.setLastName("LastName");
-        instructor.setEmail("Email");
+        instructor.setEmail("Email@gmail.com");
         instructor.setDepartment("Department");
         Instructor savedInstructor = InstructorRepository.save(instructor);
 

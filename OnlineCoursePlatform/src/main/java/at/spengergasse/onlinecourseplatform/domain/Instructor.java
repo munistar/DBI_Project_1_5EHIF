@@ -1,37 +1,83 @@
 package at.spengergasse.onlinecourseplatform.domain;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
+import java.time.LocalDate;
+import java.util.Objects;
 
-@Data
 @Entity
+@Table(name = "instructors", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "email", name = "uk_instructor_email")
+})
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
+@Builder
+@ToString
 public class Instructor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotNull
+
+    @NotBlank(message = "First name is required")
+    @Size(min = 2, max = 50)
+    @Column(nullable = false, length = 50)
     private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    @Size(min = 2, max = 50)
+    @Column(nullable = false, length = 50)
     private String lastName;
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email should be valid")
+    @Column(nullable = false, length = 100, unique = true)
     private String email;
-    @NotNull
+
+    @NotBlank(message = "Department is required")
+    @Size(min = 2, max = 100)
+    @Column(nullable = false, length = 100)
     private String department;
 
+    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Phone number must be valid")
+    private String phoneNumber;
+
+    private String officeLocation;
+
+    @PastOrPresent
+    private LocalDate hireDate;
+
+    private String biography;
+
+    @Version
+    private Long version;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Instructor instructor)) return false;
+        return Objects.equals(id, instructor.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 
     @Override
     public String toString() {
-        return firstName + " " + lastName;
+        return "Instructor{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", department='" + department + '\'' +
+                ", hireDate=" + hireDate +
+                ", version=" + version +
+                '}';
     }
-
-
 }
-
-
