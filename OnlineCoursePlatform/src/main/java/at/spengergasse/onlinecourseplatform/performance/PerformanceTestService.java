@@ -23,12 +23,9 @@ public class PerformanceTestService {
 
     // SQL Repositories
     private final StudentRepository studentRepository;
-    private final InstructorRepository instructorRepository;
-    private final CourseRepository courseRepository;
 
     // MongoDB Repositories
     private final StudentMongoRepository studentMongoRepository;
-    private final CourseMongoRepository courseMongoRepository;
 
     private final Random random = new Random();
 

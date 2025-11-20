@@ -32,45 +32,44 @@ public class MongoDataSeeder {
     private final InstructorMongoRepository instructorMongoRepository;
     private final CourseMongoRepository courseMongoRepository;
 
-    // Temporarily disabled to allow application to start
-    // @Bean
-    // @Order(2) // Run after DatabaseSeeder
+    private final org.springframework.transaction.support.TransactionTemplate transactionTemplate;
+
+    @Bean
+    @Order(2) // Run after DatabaseSeeder
     public CommandLineRunner loadMongoData() {
-        return args -> {
-            log.info("MongoDB seeding is currently disabled");
-            /*
-             * // Clear existing MongoDB data to ensure fresh seed
-             * log.info("Clearing existing MongoDB data...");
-             * studentMongoRepository.deleteAll();
-             * instructorMongoRepository.deleteAll();
-             * courseMongoRepository.deleteAll();
-             * 
-             * // Check if SQL database has data
-             * if (studentRepository.count() == 0) {
-             * log.info("SQL database is empty. Skipping MongoDB seeding.");
-             * return;
-             * }
-             * 
-             * log.info("Starting MongoDB data seeding from SQL database...");
-             * long startTime = System.currentTimeMillis();
-             * 
-             * // Seed instructors first (no dependencies)
-             * Map<Long, String> instructorIdMap = seedInstructors();
-             * 
-             * // Seed courses (depends on instructors)
-             * Map<Long, String> courseIdMap = seedCourses(instructorIdMap);
-             * 
-             * // Seed students with enrollments (depends on courses)
-             * seedStudents(courseIdMap);
-             * 
-             * long duration = System.currentTimeMillis() - startTime;
-             * log.info("MongoDB seeding completed in {} ms", duration);
-             * log.info("MongoDB documents: Students={}, Instructors={}, Courses={}",
-             * studentMongoRepository.count(),
-             * instructorMongoRepository.count(),
-             * courseMongoRepository.count());
-             */
-        };
+        return args -> transactionTemplate.execute(status -> {
+            // Clear existing MongoDB data to ensure fresh seed
+            log.info("Clearing existing MongoDB data...");
+            studentMongoRepository.deleteAll();
+            instructorMongoRepository.deleteAll();
+            courseMongoRepository.deleteAll();
+
+            // Check if SQL database has data
+            if (studentRepository.count() == 0) {
+                log.info("SQL database is empty. Skipping MongoDB seeding.");
+                return null;
+            }
+
+            log.info("Starting MongoDB data seeding from SQL database...");
+            long startTime = System.currentTimeMillis();
+
+            // Seed instructors first (no dependencies)
+            Map<Long, String> instructorIdMap = seedInstructors();
+
+            // Seed courses (depends on instructors)
+            Map<Long, String> courseIdMap = seedCourses(instructorIdMap);
+
+            // Seed students with enrollments (depends on courses)
+            seedStudents(courseIdMap);
+
+            long duration = System.currentTimeMillis() - startTime;
+            log.info("MongoDB seeding completed in {} ms", duration);
+            log.info("MongoDB documents: Students={}, Instructors={}, Courses={}",
+                    studentMongoRepository.count(),
+                    instructorMongoRepository.count(),
+                    courseMongoRepository.count());
+            return null;
+        });
     }
 
     private Map<Long, String> seedInstructors() {
@@ -115,14 +114,19 @@ public class MongoDataSeeder {
                     // Add embedded instructor info
                     if (course.getInstructor() != null) {
                         Instructor instructor = course.getInstructor();
-                        CourseDocument.InstructorInfo instructorInfo = CourseDocument.InstructorInfo.builder()
-                                .id(instructorIdMap.get(instructor.getId()))
-                                .firstName(instructor.getFirstName())
-                                .lastName(instructor.getLastName())
-                                .email(instructor.getEmail())
-                                .department(instructor.getDepartment())
-                                .build();
-                        builder.instructor(instructorInfo);
+                        // Ensure we have a valid ID from the map
+                        String mongoInstructorId = instructorIdMap.get(instructor.getId());
+
+                        if (mongoInstructorId != null) {
+                            CourseDocument.InstructorInfo instructorInfo = CourseDocument.InstructorInfo.builder()
+                                    .id(mongoInstructorId)
+                                    .firstName(instructor.getFirstName())
+                                    .lastName(instructor.getLastName())
+                                    .email(instructor.getEmail())
+                                    .department(instructor.getDepartment())
+                                    .build();
+                            builder.instructor(instructorInfo);
+                        }
                     }
 
                     CourseDocument doc = builder.build();
@@ -162,15 +166,21 @@ public class MongoDataSeeder {
                     List<StudentDocument.EnrollmentInfo> enrollmentInfos = studentEnrollments.stream()
                             .map(enrollment -> {
                                 Course course = enrollment.getCourse();
+                                String mongoCourseId = courseIdMap.get(course.getId());
+
+                                if (mongoCourseId == null)
+                                    return null;
+
                                 return StudentDocument.EnrollmentInfo.builder()
                                         .enrollmentId(enrollment.getId().toString())
-                                        .courseId(courseIdMap.get(course.getId()))
+                                        .courseId(mongoCourseId)
                                         .courseName(course.getName())
                                         .courseDescription(course.getDescription())
                                         .grade(enrollment.getGrade())
                                         .enrollmentDate(LocalDate.now()) // Default to now
                                         .build();
                             })
+                            .filter(Objects::nonNull)
                             .collect(Collectors.toList());
 
                     builder.enrollments(enrollmentInfos);
@@ -206,14 +216,18 @@ public class MongoDataSeeder {
                                 Student student = enrollment.getStudent();
                                 StudentDocument studentDoc = studentDocsByEmail.get(student.getEmail());
 
+                                if (studentDoc == null)
+                                    return null;
+
                                 return CourseDocument.StudentInfo.builder()
-                                        .studentId(studentDoc != null ? studentDoc.getId() : null)
+                                        .studentId(studentDoc.getId())
                                         .firstName(student.getFirstName())
                                         .lastName(student.getLastName())
                                         .email(student.getEmail())
                                         .grade(enrollment.getGrade())
                                         .build();
                             })
+                            .filter(Objects::nonNull)
                             .collect(Collectors.toList());
 
                     courseDoc.setEnrolledStudents(studentInfos);

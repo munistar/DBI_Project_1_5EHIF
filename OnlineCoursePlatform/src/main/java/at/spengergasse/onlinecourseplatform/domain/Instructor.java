@@ -16,7 +16,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class Instructor {
 
     @Id
@@ -58,8 +57,10 @@ public class Instructor {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Instructor instructor)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Instructor instructor))
+            return false;
         return Objects.equals(id, instructor.id);
     }
 

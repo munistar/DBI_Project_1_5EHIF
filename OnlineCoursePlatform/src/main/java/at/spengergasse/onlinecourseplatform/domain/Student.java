@@ -16,7 +16,6 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class Student {
 
     @Id
@@ -58,8 +57,10 @@ public class Student {
     // Proper equals & hashCode based on immutable business key (id)
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Student student)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Student student))
+            return false;
         return Objects.equals(id, student.id);
     }
 

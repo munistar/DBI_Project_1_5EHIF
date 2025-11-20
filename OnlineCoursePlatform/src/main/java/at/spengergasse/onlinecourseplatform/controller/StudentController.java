@@ -30,7 +30,7 @@ public class StudentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StudentDocument> getStudentById(@PathVariable String id) {
+    public ResponseEntity<StudentDocument> getStudentById(@PathVariable @org.springframework.lang.NonNull String id) {
         log.info("GET /api/students/{} - fetching student", id);
         return studentMongoRepository.findById(id)
                 .map(ResponseEntity::ok)
@@ -46,7 +46,7 @@ public class StudentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<StudentDocument> updateStudent(
-            @PathVariable String id,
+            @PathVariable @org.springframework.lang.NonNull String id,
             @RequestBody StudentDocument student) {
         log.info("PUT /api/students/{} - updating student", id);
 
@@ -60,7 +60,7 @@ public class StudentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStudent(@PathVariable String id) {
+    public ResponseEntity<Void> deleteStudent(@PathVariable @org.springframework.lang.NonNull String id) {
         log.info("DELETE /api/students/{} - deleting student", id);
 
         if (studentMongoRepository.existsById(id)) {
